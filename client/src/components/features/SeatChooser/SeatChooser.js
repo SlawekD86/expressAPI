@@ -15,18 +15,23 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const port = 'http://localhost:8000/api/seats';
-    const socket = io(port);
+    const socketAddress = process.env.NODE_ENV === 'production' ? undefined : 'ws://localhost:8000';
+    const socket = io(socketAddress);
     setSocket(socket);
     dispatch(loadSeatsRequest(seats));
     socket.on('seatsUpdated', (seats) => {
       dispatch(loadSeats(seats));
     });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [dispatch]);
 
   const isTaken = (seatId) => {
     return seats.some((item) => item.seat === seatId && item.day === chosenDay);
   };
+
   const prepareSeat = (seatId) => {
     if (seatId === chosenSeat)
       return (
@@ -47,6 +52,7 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
         </Button>
       );
   };
+
   return (
     <div>
       <h3>Pick a seat</h3>
@@ -61,8 +67,9 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
       )}
       {requests['LOAD_SEATS'] && requests['LOAD_SEATS'].pending && <Progress animated color="primary" value={50} />}
       {requests['LOAD_SEATS'] && requests['LOAD_SEATS'].error && <Alert color="warning">Couldn't load seats...</Alert>}
-      Free seats:{freeSeats}/50
+      Free seats: {freeSeats}/50
     </div>
   );
 };
+
 export default SeatChooser;
