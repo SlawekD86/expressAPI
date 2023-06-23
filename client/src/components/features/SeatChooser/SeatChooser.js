@@ -15,7 +15,7 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
   const [socket, setSocket] = useState();
 
   useEffect(() => {
-    const port = 'http://localhost:8000';
+    const port = 'http://localhost:8000/api/seats';
     const socket = io(port);
     setSocket(socket);
     dispatch(loadSeatsRequest(seats));
