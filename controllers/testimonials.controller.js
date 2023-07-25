@@ -1,60 +1,58 @@
 const Testimonial = require('../models/testimonial.model');
+const sanitize = require('mongo-sanitize');
 
 exports.getAll = async (req, res) => {
   try {
-    res.json(await Testimonial.find({}));
-  }
-  catch (err) {
-    res.status(500).json({ message: err });
-  }
-};
-
-exports.getRandom = async (req, res) => {
-
-  try {
-    const count = await Testimonial.countDocuments();
-    const rand = Math.floor(Math.random() * count);
-    const tes = await Testimonial.findOne().skip(rand);
-    if(!tes) res.status(404).json({ message: 'Not found' });
-    else res.json(tes);
+    res.json(await Testimonial.find());
   }
   catch(err) {
     res.status(500).json({ message: err });
   }
-
 };
 
 exports.getById = async (req, res) => {
   try {
     const testi = await Testimonial.findById(req.params.id);
-    if (!testi) res.status(404).json({ message: 'Not found' });
+    if(!testi) res.status(404).json({ message: 'Not found...' });
     else res.json(testi);
   }
-  catch (err) {
+  catch(err){
     res.status(500).json({ message: err });
   }
 };
 
-exports.post = async (req, res) => {
+exports.getRandom = async (req, res) => {
   try {
-    const { author, text } = req.body;
-    const newTestimonial = new Testimonial({ author: author, text: text });
-    await newTestimonial.save();
-    res.json({ message: 'OK', newTestimonial });
-  } catch (err) {
+    const count = await Testimonial.countDocuments();
+    const rand = Math.floor(Math.random() * count);
+    const testi = await Testimonial.findOne().skip(rand);
+    if(!testi) res.status(404).json({ message: 'Not found' });
+    else res.json(testi);
+  }
+  catch(err) {
     res.status(500).json({ message: err });
   }
-}
+};
 
-exports.update = async (req, res) => {
-
-  const { author, text } = req.body;
-
+exports.addTesti = async (req, res) => {
   try {
-    const tes = await Testimonial.findById(req.params.id);
-    if(tes) {
+    const { author, text } = sanitize(req.body);
+    const newTesti = new Testimonial({ author: author, text: text });
+    await newTesti.save();
+    res.json({ message: 'Ok' });
+  }
+  catch(err){
+    res.status(500).json({ message: err });
+  }
+};
+
+exports.updateTesti = async (req, res) => {
+  const { author, text } = sanitize(req.body);
+  try {
+    const testi = await Testimonial.findById(req.params.id);
+    if(tesi){
       await Testimonial.updateOne({ _id: req.params.id }, { $set: { author: author, text: text }});
-      res.json({ message: 'Document edited', tes });
+      res.json({ message: 'Ok' });
     }
     else res.status(404).json({ message: 'Not found...' });
   }
@@ -63,16 +61,16 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+exports.deleteTesti = async (req, res) => {
   try {
     const testi = await Testimonial.findById(req.params.id);
-    if (testi) {
-      await testi.deleteOne({ _id: req.params.id });
-      res.json({ message: 'Deleted', testi });
+    if(testi) {
+      await Testimonial.deleteOne({ _id: id });
+      res.json({ message: 'Ok'});
     }
-    else res.status(404).json({ message: 'Not found...' });
+    else res.status(404).json({ message: 'Not found...'});
   }
-  catch (err) {
-    res.status(500).json({ message: err });
+  catch(err) {
+    res.json({ message: err });
   }
 };

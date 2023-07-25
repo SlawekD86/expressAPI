@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const testimonialSchema = new mongoose.Schema({
-    author: { type: String, required: true },
-    text: { type: String, required: true }
+  id: { type: Number, require: true },
+  author: { type: String, require: true },
+  text: { type: String, require: true }
 });
 
 module.exports = mongoose.model('Testimonial', testimonialSchema);
